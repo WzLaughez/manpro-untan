@@ -14,7 +14,16 @@ const nav: NavItem[] = [
       { href: "/student/pendaftaran/status", label: "Status Verifikasi" },
     ],
   },
-  { href: "/student/logbook", label: "Logbook", icon: "📒" },
+  {
+    href: "/student/logbook",
+    label: "Logbook",
+    icon: "📒",
+    children: [
+      { href: "/student/logbook/pengisian", label: "Pengisian Logbook" },
+      { href: "/student/logbook/riwayat", label: "Riwayat Logbook" },
+      { href: "/student/logbook/status", label: "Status Verifikasi" },
+    ],
+  },
   {
     href: "/student/bimbingan",
     label: "Bimbingan",

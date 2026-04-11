@@ -3,7 +3,11 @@ import DataTable from "@/components/DataTable";
 import FlashToast from "@/components/FlashToast";
 import { Card, PageTitle } from "@/components/ui";
 import { getCurrentUser } from "@/lib/currentUser";
-import { getTeacherBimbinganList } from "@/lib/data/teacherBimbingan";
+import {
+  getBimbinganDetail,
+  getTeacherBimbinganList,
+} from "@/lib/data/teacherBimbingan";
+import TinjauModal from "./TinjauModal";
 
 function fmtDate(iso: string | null) {
   if (!iso) return "-";
@@ -15,9 +19,35 @@ function fmtDate(iso: string | null) {
   });
 }
 
-export default async function TeacherBimbinganPage() {
+export default async function TeacherBimbinganPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ preview?: string }>;
+}) {
   const user = await getCurrentUser();
   const items = await getTeacherBimbinganList(user.id);
+
+  const sp = await searchParams;
+  const previewId = sp.preview ?? null;
+  const previewRaw = previewId ? await getBimbinganDetail(previewId) : null;
+
+  const preview = previewRaw
+    ? {
+        id: previewRaw.id,
+        jenis: previewRaw.jenis,
+        tanggal: previewRaw.tanggal,
+        ringkasan: previewRaw.ringkasan,
+        file_name: previewRaw.file_name,
+        file_url: previewRaw.file_url,
+        catatan_dosen: previewRaw.catatan_dosen,
+        created_at: previewRaw.created_at,
+        student: previewRaw.student as unknown as {
+          name: string;
+          nim: string | null;
+        } | null,
+        kp: previewRaw.kp as unknown as { judul: string } | null,
+      }
+    : null;
 
   return (
     <>
@@ -68,7 +98,7 @@ export default async function TeacherBimbinganPage() {
                 tanggal: fmtDate(b.tanggal),
                 aksi: (
                   <Link
-                    href={`/teacher/bimbingan/${b.id}`}
+                    href={`/teacher/bimbingan?preview=${b.id}`}
                     className="text-primary hover:underline"
                     title="Tinjau"
                   >
@@ -80,6 +110,8 @@ export default async function TeacherBimbinganPage() {
           />
         )}
       </Card>
+
+      {preview && <TinjauModal item={preview} />}
     </>
   );
 }

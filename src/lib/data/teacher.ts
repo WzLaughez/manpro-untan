@@ -20,13 +20,32 @@ export async function getTeacherKPs(teacherId: string) {
   return (data ?? []) as unknown as TeacherKP[];
 }
 
+/**
+ * Global pool: all proposals waiting for verification,
+ * regardless of which teacher (if any) is assigned.
+ * Any teacher can pick one up — whoever approves it becomes the dosen pembimbing.
+ */
+export async function getAllPendingProposals() {
+  const { data } = await supabaseAdmin
+    .from("kp_registrations")
+    .select(
+      "id, judul, status, tanggal_pengajuan, created_at, student:profiles!kp_registrations_student_id_fkey(id, name, nim)",
+    )
+    .in("status", ["diajukan", "verifikasi"])
+    .order("created_at", { ascending: false });
+  return (data ?? []) as unknown as TeacherKP[];
+}
+
 export async function getTeacherDashboard(teacherId: string) {
-  const kps = await getTeacherKPs(teacherId);
+  const [kps, pending] = await Promise.all([
+    getTeacherKPs(teacherId),
+    getAllPendingProposals(),
+  ]);
 
-  const proposalsBelumVerif = kps.filter(
-    (k) => k.status === "diajukan" || k.status === "verifikasi",
-  ).length;
+  // Global backlog (any teacher sees the same number)
+  const proposalsBelumVerif = pending.length;
 
+  // Only this teacher's own students
   const mahasiswaBimbingan = kps.length;
 
   // Logbook & nilai stats — wired in later flows

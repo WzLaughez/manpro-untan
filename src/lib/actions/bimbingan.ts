@@ -25,8 +25,13 @@ async function uploadBimbinganFile(
     .from("kp-bimbingan")
     .upload(path, file, { upsert: true, contentType: file.type });
   if (error) {
-    console.error("Bimbingan file upload failed:", error.message);
-    return null;
+    // Loud failure so we don't silently save a row with null file_url.
+    // Most common cause: the `kp-bimbingan` bucket hasn't been created.
+    // Fix: run supabase/migration_004_bimbingan_bucket.sql in SQL Editor.
+    throw new Error(
+      `Bimbingan upload failed: ${error.message}. ` +
+        `Pastikan bucket 'kp-bimbingan' sudah dibuat di Supabase Storage.`,
+    );
   }
   const { data } = supabaseAdmin.storage
     .from("kp-bimbingan")

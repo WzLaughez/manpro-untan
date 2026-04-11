@@ -1,8 +1,7 @@
 import Link from "next/link";
 import { Card, PageTitle } from "@/components/ui";
 import DataTable from "@/components/DataTable";
-import { getCurrentUser } from "@/lib/currentUser";
-import { getTeacherKPs } from "@/lib/data/teacher";
+import { getAllPendingProposals } from "@/lib/data/teacher";
 
 function fmtDate(iso: string | null) {
   if (!iso) return "-";
@@ -15,11 +14,7 @@ function fmtDate(iso: string | null) {
 }
 
 export default async function VerifikasiListPage() {
-  const user = await getCurrentUser();
-  const all = await getTeacherKPs(user.id);
-  const pending = all.filter(
-    (k) => k.status === "diajukan" || k.status === "verifikasi",
-  );
+  const pending = await getAllPendingProposals();
 
   return (
     <>

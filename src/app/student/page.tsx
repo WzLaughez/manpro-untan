@@ -1,6 +1,7 @@
 import { Card, PageTitle } from "@/components/ui";
 import { getCurrentUser } from "@/lib/currentUser";
 import { getKPByStudent } from "@/lib/data/kp";
+import { getLastLogbookDate } from "@/lib/data/logbook";
 
 const MONTHS = [
   "JANUARI", "FEBRUARI", "MARET", "APRIL", "MEI", "JUNI",
@@ -69,6 +70,8 @@ export default async function StudentDashboard() {
   const isPending =
     !!kp && ["diajukan", "verifikasi", "revisi"].includes(kp.status);
 
+  const lastLogbook = isApproved ? await getLastLogbookDate(user.id) : null;
+
   return (
     <>
       <PageTitle title={`Hai, ${user.name}`} subtitle="Dashboard" />
@@ -78,22 +81,24 @@ export default async function StudentDashboard() {
           className="rounded-xl p-5 text-white shadow-sm mb-6"
           style={{
             background:
-              "linear-gradient(135deg, #56E8A0 0%, #2DC781 55%, #1AAF6B 100%)",
+              "linear-gradient(135deg, #FFB366 0%, #FF8C2E 55%, #F57C1A 100%)",
           }}
         >
-          <p className="text-[15px] font-semibold">Proposal Kamu Disetujui</p>
-          <p className="text-[13px] opacity-95">
-            Lakukan Bimbingan dengan Dosen Pembimbing
+          <p className="text-[15px] font-semibold">
+            Kamu Belum Melakukan Update Logbook Terbaru!
           </p>
-          <p className="text-[11px] opacity-80 mt-1">
-            Disetujui pada:{" "}
-            {kp.updated_at
-              ? new Date(kp.updated_at).toLocaleDateString("id-ID", {
+          <p className="text-[13px] opacity-95">
+            Segera lakukan update logbook terbaru!
+          </p>
+          <p className="text-[11px] opacity-90 mt-1">
+            <span className="font-semibold">Update Terakhir:</span>{" "}
+            {lastLogbook
+              ? new Date(lastLogbook).toLocaleDateString("id-ID", {
                   day: "numeric",
                   month: "long",
                   year: "numeric",
                 })
-              : "-"}
+              : "Belum ada entri"}
           </p>
         </div>
       ) : isPending ? (
