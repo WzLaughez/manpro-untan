@@ -34,8 +34,24 @@ const nav: NavItem[] = [
       { href: "/student/bimbingan/status", label: "Status Verifikasi" },
     ],
   },
-  { href: "/student/laporan", label: "Laporan Akhir", icon: "📄" },
-  { href: "/student/seminar", label: "Seminar", icon: "🎤" },
+  {
+    href: "/student/laporan",
+    label: "Laporan Akhir",
+    icon: "📄",
+    children: [
+      { href: "/student/laporan/upload", label: "Upload Laporan" },
+      { href: "/student/laporan/riwayat", label: "Riwayat Verifikasi" },
+    ],
+  },
+  {
+    href: "/student/seminar",
+    label: "Seminar",
+    icon: "🎤",
+    children: [
+      { href: "/student/seminar/daftar", label: "Daftar Seminar" },
+      { href: "/student/seminar/jadwal", label: "Jadwal Seminar" },
+    ],
+  },
   { href: "/student/status", label: "Status & Nilai", icon: "📊" },
   { href: "/student/bantuan", label: "Bantuan & Panduan", icon: "❓" },
 ];

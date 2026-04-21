@@ -40,6 +40,7 @@ function ActionCard({
   href,
   enabled,
   emptyMessage,
+  ctaVariant = "primary",
 }: {
   title: string;
   description: string;
@@ -47,7 +48,12 @@ function ActionCard({
   href: string;
   enabled: boolean;
   emptyMessage?: string;
+  ctaVariant?: "primary" | "notification";
 }) {
+  const ctaBg =
+    ctaVariant === "notification"
+      ? "linear-gradient(135deg, #FFB366 0%, #F57C1A 100%)"
+      : "linear-gradient(135deg, #5BC0F0 0%, #1E88E5 100%)";
   return (
     <Card>
       <h3 className="text-[14px] font-semibold mb-1">{title}</h3>
@@ -58,9 +64,7 @@ function ActionCard({
         <Link
           href={href}
           className="grid w-full h-10 rounded-md text-white text-[13px] font-semibold place-items-center"
-          style={{
-            background: "linear-gradient(135deg, #5BC0F0 0%, #1E88E5 100%)",
-          }}
+          style={{ background: ctaBg }}
         >
           {cta}
         </Link>
@@ -147,13 +151,14 @@ export default async function TeacherDashboard() {
           cta="Lihat Logbook"
           href="/teacher/logbook"
           enabled={stats.logbookMasuk > 0}
+          ctaVariant="notification"
           emptyMessage="Logbook akan muncul otomatis setelah mahasiswa bimbingan mengajukan"
         />
         <ActionCard
           title="Penilaian KP"
           description="Segera lakukan input penilaian hasil KP Mahasiswa anda"
           cta="Input Nilai"
-          href="/teacher/scoring"
+          href="/teacher/penilaian"
           enabled={stats.mahasiswaBelumDinilai > 0}
           emptyMessage="Penilaian dapat dilakukan setelah seminar dan berkas dinyatakan lengkap."
         />

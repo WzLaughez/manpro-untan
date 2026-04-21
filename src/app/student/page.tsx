@@ -1,7 +1,9 @@
 import { Card, PageTitle } from "@/components/ui";
 import { getCurrentUser } from "@/lib/currentUser";
 import { getKPByStudent } from "@/lib/data/kp";
+import { getLaporanByStudent } from "@/lib/data/laporan";
 import { getLastLogbookDate } from "@/lib/data/logbook";
+import { getSeminarByStudent } from "@/lib/data/seminar";
 
 const MONTHS = [
   "JANUARI", "FEBRUARI", "MARET", "APRIL", "MEI", "JUNI",
@@ -70,19 +72,69 @@ export default async function StudentDashboard() {
   const isPending =
     !!kp && ["diajukan", "verifikasi", "revisi"].includes(kp.status);
 
-  const lastLogbook = isApproved ? await getLastLogbookDate(user.id) : null;
+  const [lastLogbook, laporan, seminar] = isApproved
+    ? await Promise.all([
+        getLastLogbookDate(user.id),
+        getLaporanByStudent(user.id),
+        getSeminarByStudent(user.id),
+      ])
+    : [null, null, null];
+
+  const laporanDiterima = laporan?.status === "diterima";
+  const ORANGE = "linear-gradient(135deg, #FFB366 0%, #FF8C2E 55%, #F57C1A 100%)";
+  const GREEN = "linear-gradient(135deg, #56E8A0 0%, #2DC781 55%, #1AAF6B 100%)";
 
   return (
     <>
       <PageTitle title={`Hai, ${user.name}`} subtitle="Dashboard" />
 
-      {isApproved ? (
+      {isApproved && seminar?.status === "disetujui" ? (
         <div
           className="rounded-xl p-5 text-white shadow-sm mb-6"
-          style={{
-            background:
-              "linear-gradient(135deg, #FFB366 0%, #FF8C2E 55%, #F57C1A 100%)",
-          }}
+          style={{ background: GREEN }}
+        >
+          <p className="text-[15px] font-semibold">Pengajuan Jadwal Seminar</p>
+          <p className="text-[13px] opacity-95">
+            Selamat! Jadwal Seminar Kamu Disetujui, Persiapkan Dirimu!
+          </p>
+          <p className="text-[11px] opacity-90 mt-1">
+            <span className="font-semibold">Disetujui pada:</span>{" "}
+            {seminar.updated_at
+              ? new Date(seminar.updated_at).toLocaleDateString("id-ID", {
+                  day: "numeric",
+                  month: "long",
+                  year: "numeric",
+                })
+              : "-"}
+          </p>
+        </div>
+      ) : isApproved && seminar && seminar.status === "diajukan" ? (
+        <div
+          className="rounded-xl p-5 text-white shadow-sm mb-6"
+          style={{ background: ORANGE }}
+        >
+          <p className="text-[15px] font-semibold">
+            Menunggu Persetujuan Jadwal Seminar
+          </p>
+          <p className="text-[13px] opacity-95">
+            Pengajuan seminar kamu sedang ditinjau oleh Dosen Pembimbing.
+          </p>
+        </div>
+      ) : isApproved && laporanDiterima && !seminar ? (
+        <div
+          className="rounded-xl p-5 text-white shadow-sm mb-6"
+          style={{ background: ORANGE }}
+        >
+          <p className="text-[15px] font-semibold">Ajukan Seminar Kamu!</p>
+          <p className="text-[13px] opacity-95">
+            Laporan Akhir kamu telah diterima. Silakan ajukan jadwal seminar di
+            menu Seminar.
+          </p>
+        </div>
+      ) : isApproved ? (
+        <div
+          className="rounded-xl p-5 text-white shadow-sm mb-6"
+          style={{ background: ORANGE }}
         >
           <p className="text-[15px] font-semibold">
             Kamu Belum Melakukan Update Logbook Terbaru!

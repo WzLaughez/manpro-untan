@@ -9,7 +9,7 @@ const nav: NavItem[] = [
   { href: "/teacher/bimbingan", label: "Bimbingan", icon: "💬" },
   { href: "/teacher/laporan", label: "Laporan Akhir", icon: "📄" },
   { href: "/teacher/seminar", label: "Seminar", icon: "🎤" },
-  { href: "/teacher/scoring", label: "Penilaian", icon: "📊" },
+  { href: "/teacher/penilaian", label: "Penilaian", icon: "📊" },
   { href: "/teacher/bantuan", label: "Bantuan & Panduan", icon: "❓" },
 ];
 

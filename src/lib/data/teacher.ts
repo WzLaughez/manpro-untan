@@ -48,9 +48,40 @@ export async function getTeacherDashboard(teacherId: string) {
   // Only this teacher's own students
   const mahasiswaBimbingan = kps.length;
 
-  // Logbook & nilai stats — wired in later flows
-  const logbookMasuk = 0;
-  const mahasiswaBelumDinilai = 0;
+  // Logbook count: entries from this teacher's students with status='diajukan'
+  const kpIds = kps.map((k) => k.id);
+  let logbookMasuk = 0;
+  if (kpIds.length > 0) {
+    const { count } = await supabaseAdmin
+      .from("logbook")
+      .select("id", { count: "exact", head: true })
+      .in("kp_id", kpIds)
+      .eq("status", "diajukan");
+    logbookMasuk = count ?? 0;
+  }
+
+  let mahasiswaBelumDinilai = 0;
+  if (kpIds.length > 0) {
+    // Students whose seminar is done AND no penilaian_kp yet
+    const { data: finishedSeminars } = await supabaseAdmin
+      .from("seminar")
+      .select("kp_id")
+      .in("kp_id", kpIds)
+      .or(
+        "kehadiran_konfirmasi.eq.true,kehadiran_hadir.eq.true,status.eq.selesai",
+      );
+    const finishedIds = (finishedSeminars ?? []).map((s) => s.kp_id);
+    if (finishedIds.length > 0) {
+      const { data: graded } = await supabaseAdmin
+        .from("penilaian_kp")
+        .select("kp_id")
+        .in("kp_id", finishedIds);
+      const gradedIds = new Set((graded ?? []).map((g) => g.kp_id));
+      mahasiswaBelumDinilai = finishedIds.filter(
+        (id) => !gradedIds.has(id),
+      ).length;
+    }
+  }
 
   return {
     kps,
